@@ -1,10 +1,16 @@
 package main
 
-import "log"
+import (
+	"log"
+	"os"
+
+	"github.com/anmol420/twitterbackend/internal/env"
+)
 
 func main() {
+	env.LoadEnv()
 	cfg := config{
-		addr: ":4000",
+		addr: os.Getenv("API_ADDR"),
 	}
 	app := application{
 		config: cfg,
