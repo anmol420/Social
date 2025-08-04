@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/anmol420/Social/internal/env"
+	"github.com/anmol420/Social/internal/store"
 )
 
 func main() {
@@ -14,8 +15,10 @@ func main() {
 	cfg := config{
 		addr: addr,
 	}
+	store := store.NewStorage(nil)
 	app := &application{
 		config: cfg,
+		store:  store,
 	}
 	if err := app.run(app.mount()); err != nil {
 		log.Fatal(err)
