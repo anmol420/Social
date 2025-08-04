@@ -36,7 +36,6 @@ func (s *UserStorage) Create(ctx context.Context, u *User) error {
 	)
 	if err != nil {
 		return err
-
 	}
 	return nil
 }
