@@ -7,9 +7,9 @@ import (
 func (app *application) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	data := map[string]any{
 		"status": http.StatusOK,
-		"data":   "Ok!",
+		"message":   "Ok!",
 	}
-	if err := writeJSON(w, http.StatusOK, data); err != nil {
+	if err := app.jsonResponse(w, http.StatusOK, data); err != nil {
 		app.internalServerError(w, r, err)
 		return
 	}

@@ -16,7 +16,7 @@ func init() {
 func writeJSON(w http.ResponseWriter, status int, data any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	return json.NewEncoder(w).Encode(data);
+	return json.NewEncoder(w).Encode(data)
 }
 
 func readJSON(w http.ResponseWriter, r *http.Request, data any) error {
@@ -32,4 +32,12 @@ func writeJSONError(w http.ResponseWriter, status int, message string) error {
 		Error string `json:"error"`
 	}
 	return writeJSON(w, status, &envelope{Error: message})
+}
+
+func (app *application) jsonResponse(w http.ResponseWriter, status int, data any) error {
+	type envelope struct {
+		Status int `json:"status"`
+		Data   any `json:"data"`
+	}
+	return writeJSON(w, status, &envelope{Status: status, Data: data})
 }
