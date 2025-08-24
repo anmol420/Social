@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	ErrNotFound = errors.New("Record Not Found")
+	ErrNotFound = errors.New("record not found")
 )
 
 type Storage struct {
@@ -18,11 +18,15 @@ type Storage struct {
 	Users interface {
 		Create(context.Context, *User) error
 	}
+	Comments interface {
+		GetByPostID(context.Context, int64) ([]Comment, error)
+	}
 }
 
 func NewStorage(db *sql.DB) Storage {
 	return Storage{
-		Posts: &PostStorage{db},
-		Users: &UserStorage{db},
+		Posts:    &PostStorage{db},
+		Users:    &UserStorage{db},
+		Comments: &CommentStorage{db},
 	}
 }
