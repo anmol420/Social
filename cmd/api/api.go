@@ -48,7 +48,7 @@ func (app *application) mount() http.Handler {
 				r.Patch("/", app.updatePostHandler)
 				r.Route("/comments", func(r chi.Router) {
 					r.Post("/", app.createCommentHandler)
-					// TODO: DELETE UPDATE ON commentID
+					// TODO: DELETE UPDATE GET ON commentID
 				})
 			})
 		})
