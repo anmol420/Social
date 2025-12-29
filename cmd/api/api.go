@@ -48,13 +48,15 @@ func (app *application) mount() http.Handler {
 				r.Patch("/", app.updatePostHandler)
 				r.Route("/comments", func(r chi.Router) {
 					r.Post("/", app.createCommentHandler)
-					// TODO: DELETE UPDATE GET ON commentID
 				})
 			})
 		})
 		r.Route("/users", func(r chi.Router) {
 			r.Route("/{userID}", func(r chi.Router) {
+				r.Use(app.userContextMiddleware)
 				r.Get("/", app.getUserByIDHandler)
+				r.Post("/follow", app.followUserHandler)
+				r.Post("/unfollow", app.unfollowUserHandler)
 			})
 		})
 	})
