@@ -58,6 +58,9 @@ func (app *application) mount() http.Handler {
 				r.Post("/follow", app.followUserHandler)
 				r.Post("/unfollow", app.unfollowUserHandler)
 			})
+			r.Group(func(r chi.Router) {
+				r.Get("/feed", app.getUserFeedHandler)
+			})
 		})
 	})
 
