@@ -21,6 +21,6 @@ migrate-up:
 .PHONY: migrate-down
 migrate-down:
 	@migrate -path $(MIGRATION_PATH) -database=$(DATABASE_ADDR) down $(filter-out $@,$(MAKECMDGOALS))
-
+	
 %:
 	@:

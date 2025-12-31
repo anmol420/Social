@@ -22,8 +22,8 @@ func (app *application) createCommentHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	comment := &store.Comment{
-		PostID: post.ID,
-		UserID: 1, // TODO: from auth middleware
+		PostID:  post.ID,
+		UserID:  1, // TODO: from auth middleware
 		Content: payload.Content,
 	}
 	ctx := r.Context()

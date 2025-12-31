@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 	"time"
-
+	
 	"github.com/anmol420/Social/internal/store"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -16,8 +16,8 @@ type application struct {
 }
 
 type config struct {
-	addr string
-	db   dbConfig
+	addr   string
+	db     dbConfig
 }
 
 type dbConfig struct {

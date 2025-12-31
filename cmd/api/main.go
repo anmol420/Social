@@ -7,7 +7,6 @@ import (
 	"github.com/anmol420/Social/internal/env"
 	"github.com/anmol420/Social/internal/store"
 )
-
 func main() {
 	addr := env.StringGetEnv("ADDR")
 	databaseAddr := env.StringGetEnv("DATABASE_ADDR")
@@ -15,7 +14,7 @@ func main() {
 	maxIdleConns := env.IntegerGetEnv("MAX_IDLE_CONNS")
 	maxIdleTime := env.StringGetEnv("MAX_IDLE_TIME")
 	cfg := config{
-		addr: addr,
+		addr:   addr,
 		db: dbConfig{
 			addr:         databaseAddr,
 			maxOpenConns: maxOpenConns,

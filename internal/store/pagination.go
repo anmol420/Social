@@ -42,22 +42,22 @@ func (fq PaginatedFeedQuery) Parse(r *http.Request) (PaginatedFeedQuery, error) 
 	if sort != "" {
 		fq.Sort = sort
 	}
-	
+
 	tags := qs.Get("tags")
 	if tags != "" {
 		fq.Tags = strings.Split(tags, ",")
 	}
-	
+
 	search := qs.Get("search")
 	if search != "" {
 		fq.Search = search
 	}
-	
+
 	since := qs.Get("since")
 	if since != "" {
 		fq.Since = parseTime(since)
 	}
-	
+
 	until := qs.Get("until")
 	if until != "" {
 		fq.Until = parseTime(until)
