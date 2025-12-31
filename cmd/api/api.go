@@ -1,23 +1,24 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"time"
-	
+
 	"github.com/anmol420/Social/internal/store"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"go.uber.org/zap"
 )
 
 type application struct {
 	config config
 	store  store.Storage
+	logger *zap.SugaredLogger
 }
 
 type config struct {
-	addr   string
-	db     dbConfig
+	addr string
+	db   dbConfig
 }
 
 type dbConfig struct {
@@ -75,6 +76,6 @@ func (app *application) run(mux http.Handler) error {
 		ReadTimeout:  time.Second * 10,
 		IdleTimeout:  time.Minute,
 	}
-	log.Println("Server Started On", app.config.addr)
+	app.logger.Infow("Server Started", "addr", app.config.addr)
 	return srv.ListenAndServe()
 }
