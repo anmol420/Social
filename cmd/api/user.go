@@ -17,6 +17,25 @@ type FollowUserPayload struct {
 	UserID int64 `json:"user_id"`
 }
 
+func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
+	token := chi.URLParam(r, "token")
+	err := app.store.Users.Activate(r.Context(), token)
+	if err != nil {
+		switch err {
+		case store.ErrNotFound:
+			app.notFoundError(w, r, err)
+			return
+		default:
+			app.internalServerError(w, r, err)
+			return
+		}
+	}
+	if err := app.jsonResponse(w, http.StatusOK, nil); err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+}
+
 func (app *application) getUserByIDHandler(w http.ResponseWriter, r *http.Request) {
 	userId, err := strconv.ParseInt(chi.URLParam(r, "userID"), 10, 64)
 	if err != nil {

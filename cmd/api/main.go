@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/anmol420/Social/internal/db"
 	"github.com/anmol420/Social/internal/env"
 	"github.com/anmol420/Social/internal/store"
@@ -20,6 +22,9 @@ func main() {
 			maxOpenConns: maxOpenConns,
 			maxIdleConns: maxIdleConns,
 			maxIdleTime:  maxIdleTime,
+		},
+		mail: mailConfig{
+			exp: time.Hour * 24 * 3,
 		},
 	}
 	// Logger
