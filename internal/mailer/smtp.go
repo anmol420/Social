@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -49,15 +48,15 @@ func (m *SmtpMailer) Send(templateFile, username, email string, data any) error 
 		TemplateData: aws(string(dataJson)),
 	}
 	// retries
+	var retryErr error
 	for i := range maxRetries {
-		_, err = m.client.SendTemplatedEmail(context.TODO(), input)
-		if err != nil {
-			log.Printf("Error: %v", err)
+		_, retryErr = m.client.SendTemplatedEmail(context.TODO(), input)
+		if retryErr != nil {
 			// exponential backoff
 			time.Sleep(time.Second * time.Duration(i+1))
 			continue
 		}
 		return nil
 	}
-	return fmt.Errorf("Failed to send email after maxRetries")
+	return fmt.Errorf("Failed to send email after maxRetries: %v", retryErr.Error())
 }
