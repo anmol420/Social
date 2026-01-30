@@ -1,0 +1,8 @@
+{
+  "Template": {
+    "TemplateName": "UserInvitationSocial",
+    "SubjectPart": "Activate Your Account",
+    "TextPart": "Hello {{username}}, your activation link is {{activationLink}}.",
+    "HtmlPart": "<h2>Hello {{username}},</h2><p>Your  activation link is:</p><h1>{{activationLink}}</h1>"
+  }
+}
