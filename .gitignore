@@ -1,3 +1,4 @@
 bin/main.exe
 .env
 bin/build-errors.log
+bin/main.exe~
