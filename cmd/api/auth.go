@@ -3,8 +3,10 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"net/http"
 
+	"github.com/anmol420/Social/internal/mailer"
 	"github.com/anmol420/Social/internal/store"
 	"github.com/google/uuid"
 )
@@ -15,7 +17,12 @@ type RegisterUserPayload struct {
 	Password string `json:"password" validate:"required,min=3,max=72"`
 }
 
-// Dev Only
+type ActivationMailData struct {
+	Username       string `json:"username"`
+	ActivationLink string `json:"activationLink"`
+}
+
+// dev only
 type UserWithToken struct {
 	*store.User
 	Token string `json:"token"`
@@ -48,10 +55,25 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		app.internalServerError(w, r, err)
 		return
 	}
-	//Dev Only
+	// dev only
 	userWithToken := UserWithToken{
-		User: user,
+		User:  user,
 		Token: plainToken,
+	}
+	activationUrl := fmt.Sprintf("%s/confirm/%s", app.config.frontendURL, plainToken)
+	// mailer
+	data := ActivationMailData{
+		Username:       user.Username,
+		ActivationLink: activationUrl,
+	}
+	if err := app.mailer.Send(mailer.UserActivationTemplate, user.Username, user.Email, data); err != nil {
+		// rollback user creation if mail is not send (SAGA Pattern)
+		if err := app.store.Users.Delete(ctx, user.ID); err != nil {
+			app.internalServerError(w, r, err)
+		}
+
+		app.internalServerError(w, r, err)
+		return
 	}
 	if err := app.jsonResponse(w, http.StatusCreated, userWithToken); err != nil {
 		app.internalServerError(w, r, err)
