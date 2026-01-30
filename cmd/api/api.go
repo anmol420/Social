@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/anmol420/Social/internal/mailer"
 	"github.com/anmol420/Social/internal/store"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -14,12 +15,14 @@ type application struct {
 	config config
 	store  store.Storage
 	logger *zap.SugaredLogger
+	mailer mailer.Client
 }
 
 type config struct {
-	addr string
-	db   dbConfig
-	mail mailConfig
+	addr        string
+	db          dbConfig
+	mail        mailConfig
+	frontendURL string
 }
 
 type mailConfig struct {

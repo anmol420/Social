@@ -5,6 +5,7 @@ import (
 
 	"github.com/anmol420/Social/internal/db"
 	"github.com/anmol420/Social/internal/env"
+	"github.com/anmol420/Social/internal/mailer"
 	"github.com/anmol420/Social/internal/store"
 	"go.uber.org/zap"
 )
@@ -15,6 +16,9 @@ func main() {
 	maxOpenConns := env.IntegerGetEnv("MAX_OPEN_CONNS")
 	maxIdleConns := env.IntegerGetEnv("MAX_IDLE_CONNS")
 	maxIdleTime := env.StringGetEnv("MAX_IDLE_TIME")
+	mailerFromEmail := env.StringGetEnv("MAILER_FROM_EMAIL")
+	mailerRegion := env.StringGetEnv("MAILER_REGION")
+	frontendUrl := env.StringGetEnv("FRONTEND_URL")
 	cfg := config{
 		addr: addr,
 		db: dbConfig{
@@ -26,6 +30,7 @@ func main() {
 		mail: mailConfig{
 			exp: time.Hour * 24 * 3,
 		},
+		frontendURL: frontendUrl,
 	}
 	// Logger
 	logger := zap.Must(zap.NewProduction()).Sugar()
@@ -38,10 +43,15 @@ func main() {
 	defer db.Close()
 	logger.Info("Database Connection Established!")
 	store := store.NewStorage(db)
+	mail, err := mailer.NewSESClient(mailerFromEmail, mailerRegion)
+	if err != nil {
+		logger.Fatal(err)
+	}
 	app := &application{
 		config: cfg,
 		store:  store,
 		logger: logger,
+		mailer: mail,
 	}
 	if err := app.run(app.mount()); err != nil {
 		logger.Fatal(err)
