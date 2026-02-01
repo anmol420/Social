@@ -35,11 +35,12 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 		app.badRequestError(w, r, err)
 		return
 	}
+	user := getUserFromContext(r.Context())
 	post := &store.Post{
 		Title:   payload.Title,
 		Content: payload.Content,
 		Tags:    payload.Tags,
-		UserID:  1, // TODO: from auth middleware
+		UserID:  user.ID,
 	}
 	ctx := r.Context()
 	if err := app.store.Posts.Create(ctx, post); err != nil {
