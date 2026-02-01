@@ -24,6 +24,16 @@ type config struct {
 	db          dbConfig
 	mail        mailConfig
 	frontendURL string
+	auth        authConfig
+}
+
+type authConfig struct {
+	basic basicConfig
+}
+
+type basicConfig struct {
+	username string
+	password string
 }
 
 type mailConfig struct {
@@ -57,7 +67,7 @@ func (app *application) mount() http.Handler {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	r.Route("/v1", func(r chi.Router) {
-		r.Get("/health", app.healthCheckHandler)
+		r.With(app.basicAuthMiddleware()).Get("/health", app.healthCheckHandler)
 		r.Route("/posts", func(r chi.Router) {
 			r.Post("/create", app.createPostHandler)
 			r.Route("/{postID}", func(r chi.Router) {

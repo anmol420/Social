@@ -19,6 +19,8 @@ func main() {
 	mailerFromEmail := env.StringGetEnv("MAILER_FROM_EMAIL")
 	mailerRegion := env.StringGetEnv("MAILER_REGION")
 	frontendUrl := env.StringGetEnv("FRONTEND_URL")
+	basicAuthUsername := env.StringGetEnv("AUTH_BASIC_USERNAME")
+	basicAuthPassword := env.StringGetEnv("AUTH_BASIC_PASSWORD")
 	cfg := config{
 		addr: addr,
 		db: dbConfig{
@@ -31,6 +33,12 @@ func main() {
 			exp: time.Hour * 24 * 3,
 		},
 		frontendURL: frontendUrl,
+		auth: authConfig{
+			basic: basicConfig{
+				username: basicAuthUsername,
+				password: basicAuthPassword,
+			},
+		},
 	}
 	// Logger
 	logger := zap.Must(zap.NewProduction()).Sugar()
