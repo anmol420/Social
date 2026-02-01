@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	"github.com/anmol420/Social/internal/auth"
 	"github.com/anmol420/Social/internal/db"
 	"github.com/anmol420/Social/internal/env"
 	"github.com/anmol420/Social/internal/mailer"
@@ -21,6 +22,7 @@ func main() {
 	frontendUrl := env.StringGetEnv("FRONTEND_URL")
 	basicAuthUsername := env.StringGetEnv("AUTH_BASIC_USERNAME")
 	basicAuthPassword := env.StringGetEnv("AUTH_BASIC_PASSWORD")
+	jwtAuthSecret := env.StringGetEnv("AUTH_JWT_TOKEN_SECRET")
 	cfg := config{
 		addr: addr,
 		db: dbConfig{
@@ -38,12 +40,17 @@ func main() {
 				username: basicAuthUsername,
 				password: basicAuthPassword,
 			},
+			token: tokenConfig{
+				secret: jwtAuthSecret,
+				exp:    time.Hour * 24 * 3,
+				iss:    "social",
+			},
 		},
 	}
-	// Logger
+	// logger
 	logger := zap.Must(zap.NewProduction()).Sugar()
 	defer logger.Sync()
-	// Database
+	// database
 	db, err := db.New(cfg.db.addr, cfg.db.maxOpenConns, cfg.db.maxIdleConns, cfg.db.maxIdleTime)
 	if err != nil {
 		logger.Fatal(err)
@@ -51,15 +58,19 @@ func main() {
 	defer db.Close()
 	logger.Info("Database Connection Established!")
 	store := store.NewStorage(db)
+	// mailer
 	mail, err := mailer.NewSESClient(mailerFromEmail, mailerRegion)
 	if err != nil {
 		logger.Fatal(err)
 	}
+	// auth
+	jwtAuthenticator := auth.NewJwtAuthenticator(cfg.auth.token.secret, cfg.auth.token.iss, cfg.auth.token.iss)
 	app := &application{
-		config: cfg,
-		store:  store,
-		logger: logger,
-		mailer: mail,
+		config:        cfg,
+		store:         store,
+		logger:        logger,
+		mailer:        mail,
+		authenticator: jwtAuthenticator,
 	}
 	if err := app.run(app.mount()); err != nil {
 		logger.Fatal(err)

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/anmol420/Social/internal/auth"
 	"github.com/anmol420/Social/internal/mailer"
 	"github.com/anmol420/Social/internal/store"
 	"github.com/go-chi/chi/v5"
@@ -13,10 +14,11 @@ import (
 )
 
 type application struct {
-	config config
-	store  store.Storage
-	logger *zap.SugaredLogger
-	mailer mailer.Client
+	config        config
+	store         store.Storage
+	logger        *zap.SugaredLogger
+	mailer        mailer.Client
+	authenticator auth.Authenticator
 }
 
 type config struct {
@@ -29,6 +31,13 @@ type config struct {
 
 type authConfig struct {
 	basic basicConfig
+	token tokenConfig
+}
+
+type tokenConfig struct {
+	secret string
+	exp    time.Duration
+	iss    string
 }
 
 type basicConfig struct {
@@ -94,6 +103,7 @@ func (app *application) mount() http.Handler {
 		})
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/register", app.registerUserHandler)
+			r.Post("/token", app.createTokenHandler)
 		})
 	})
 
