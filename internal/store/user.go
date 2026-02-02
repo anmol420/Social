@@ -34,6 +34,10 @@ func (p *password) Set(text string) error {
 	return nil
 }
 
+func (p *password) Compare(text string) error {
+	return bcrypt.CompareHashAndPassword(p.hash, []byte(text))
+}
+
 type UserStorage struct {
 	db *sql.DB
 }
@@ -177,10 +181,10 @@ func (s *UserStorage) updateActivation(ctx context.Context, tx *sql.Tx, user *Us
 	query := `
 		UPDATE users SET username = $1, email = $2, is_active = $3 WHERE id = $4
 	`
-	
+
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
-	
+
 	_, err := tx.ExecContext(ctx, query, user.Username, user.Email, user.IsActive, user.ID)
 	if err != nil {
 		return err
@@ -192,15 +196,15 @@ func (s *UserStorage) deleteUserInvitation(ctx context.Context, tx *sql.Tx, user
 	query := `
 		DELETE FROM user_invitations WHERE user_id = $1
 	`
-	
+
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
-	
+
 	_, err := tx.ExecContext(ctx, query, userID)
 	if err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
