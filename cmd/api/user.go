@@ -38,7 +38,7 @@ func (app *application) getUserByIDHandler(w http.ResponseWriter, r *http.Reques
 		app.badRequestError(w, r, err)
 		return
 	}
-	user, err := app.store.Users.GetByID(r.Context(), userId)
+	user, err := app.getUser(r.Context(), userId)
 	if err != nil {
 		switch err {
 		case store.ErrNotFound:
