@@ -28,3 +28,17 @@ func IntegerGetEnv(key string) int {
 	}
 	return intValue
 }
+
+func BoolGetEnv(key string) bool {
+	value := GetEnv(key)
+	if value == "" {
+		log.Fatalf("Environment Variable %s is Not Set!", key)
+		os.Exit(1)
+	}
+	boolValue, err := strconv.ParseBool(value)
+	if err != nil {
+		log.Fatalf("Environment Variable %s is Not a Valid Boolean!", key)
+		os.Exit(1)
+	}
+	return boolValue
+}
