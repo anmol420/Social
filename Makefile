@@ -1,6 +1,10 @@
 include .env
 MIGRATION_PATH=./cmd/migrate/migrations
 
+.PHONY: test
+test:
+	@go test -v ./...
+
 .PHONY: migrate-version
 migrate-version:
 	@migrate -path=$(MIGRATION_PATH) -database=$(DATABASE_ADDR) version
