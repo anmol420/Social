@@ -125,3 +125,15 @@ func (app *application) getUser(ctx context.Context, userID int64) (*store.User,
 	}
 	return user, nil
 }
+
+func (app *application) ratelimiterMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if app.config.ratelimiter.Enabled {
+			if allow, retryAfter := app.ratelimiter.Allow(r.RemoteAddr); !allow {
+				app.ratelimitExceedError(w, r, retryAfter.String())
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}

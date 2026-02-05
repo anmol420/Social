@@ -11,6 +11,7 @@ import (
 
 	"github.com/anmol420/Social/internal/auth"
 	"github.com/anmol420/Social/internal/mailer"
+	"github.com/anmol420/Social/internal/ratelimiter"
 	"github.com/anmol420/Social/internal/store"
 	"github.com/anmol420/Social/internal/store/cache"
 	"github.com/go-chi/chi/v5"
@@ -26,6 +27,7 @@ type application struct {
 	logger        *zap.SugaredLogger
 	mailer        mailer.Client
 	authenticator auth.Authenticator
+	ratelimiter   ratelimiter.Limiter
 }
 
 type config struct {
@@ -35,6 +37,7 @@ type config struct {
 	frontendURL string
 	auth        authConfig
 	redis       redisConfig
+	ratelimiter ratelimiter.Config
 }
 
 type redisConfig struct {
@@ -86,11 +89,13 @@ func (app *application) mount() http.Handler {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	r.Use(app.ratelimiterMiddleware)
 
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	r.Route("/v1", func(r chi.Router) {
-		r.With(app.basicAuthMiddleware()).Get("/health", app.healthCheckHandler)
+		// r.With(app.basicAuthMiddleware()).Get("/health", app.healthCheckHandler)
+		r.Get("/health", app.healthCheckHandler)
 		r.Route("/posts", func(r chi.Router) {
 			r.Use(app.authTokenMiddleware)
 			r.Post("/create", app.createPostHandler)

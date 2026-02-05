@@ -7,6 +7,7 @@ import (
 	"github.com/anmol420/Social/internal/db"
 	"github.com/anmol420/Social/internal/env"
 	"github.com/anmol420/Social/internal/mailer"
+	"github.com/anmol420/Social/internal/ratelimiter"
 	"github.com/anmol420/Social/internal/store"
 	"github.com/anmol420/Social/internal/store/cache"
 	"github.com/redis/go-redis/v9"
@@ -28,6 +29,8 @@ func main() {
 	redisAddr := env.StringGetEnv("REDIS_ADDR")
 	redisDB := env.IntegerGetEnv("REDIS_DB")
 	redisEnabled := env.BoolGetEnv("REDIS_ENABLED")
+	rateLimiterRequestsCount := env.IntegerGetEnv("RATELIMITER_REQUESTS_COUNT")
+	rateLimiterEnabled := env.BoolGetEnv("RATELIMITER_ENABLED")
 	cfg := config{
 		addr: addr,
 		db: dbConfig{
@@ -56,6 +59,11 @@ func main() {
 			db:      redisDB,
 			enabled: redisEnabled,
 		},
+		ratelimiter: ratelimiter.Config{
+			RequestsPerTimeFrame: rateLimiterRequestsCount,
+			TimeFrame:            time.Second * 5,
+			Enabled:              rateLimiterEnabled,
+		},
 	}
 	// logger
 	logger := zap.Must(zap.NewProduction()).Sugar()
@@ -76,6 +84,11 @@ func main() {
 		cacheStorage = cache.NewRedisStorage(rdb)
 		logger.Info("Redis Connection Established!")
 	}
+	// ratelimiter
+	ratelimter := ratelimiter.NewFixedWindowLimiter(
+		cfg.ratelimiter.RequestsPerTimeFrame,
+		cfg.ratelimiter.TimeFrame,
+	)
 	// mailer
 	mail, err := mailer.NewSESClient(mailerFromEmail, mailerRegion)
 	if err != nil {
@@ -90,6 +103,7 @@ func main() {
 		logger:        logger,
 		mailer:        mail,
 		authenticator: jwtAuthenticator,
+		ratelimiter:   ratelimter,
 	}
 	if err := app.run(app.mount()); err != nil {
 		logger.Fatal(err)
