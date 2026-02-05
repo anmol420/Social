@@ -1,6 +1,8 @@
 package main
 
 import (
+	"expvar"
+	"runtime"
 	"time"
 
 	"github.com/anmol420/Social/internal/auth"
@@ -105,6 +107,14 @@ func main() {
 		authenticator: jwtAuthenticator,
 		ratelimiter:   ratelimter,
 	}
+	// metrics collected
+	expvar.NewString("version").Set("0.0.1")
+	expvar.Publish("database", expvar.Func(func() any {
+		return db.Stats()
+	}))
+	expvar.Publish("go-routines", expvar.Func(func() any {
+		return runtime.NumGoroutine()
+	}))
 	if err := app.run(app.mount()); err != nil {
 		logger.Fatal(err)
 	}
