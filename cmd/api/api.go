@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/anmol420/Social/internal/auth"
+	"github.com/anmol420/Social/internal/env"
 	"github.com/anmol420/Social/internal/mailer"
 	"github.com/anmol420/Social/internal/ratelimiter"
 	"github.com/anmol420/Social/internal/store"
@@ -76,19 +77,18 @@ type dbConfig struct {
 func (app *application) mount() http.Handler {
 	r := chi.NewRouter()
 
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedOrigins:   []string{env.StringGetEnv("FRONTEND_URL")},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
-
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
 	r.Use(app.ratelimiterMiddleware)
 
 	r.Use(middleware.Timeout(60 * time.Second))
