@@ -58,5 +58,5 @@ func (m *SmtpMailer) Send(templateFile, username, email string, data any) error 
 		}
 		return nil
 	}
-	return fmt.Errorf("Failed to send email after maxRetries: %v", retryErr.Error())
+	return fmt.Errorf("failed to send email after maxRetries: %v", retryErr.Error())
 }

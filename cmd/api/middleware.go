@@ -34,7 +34,7 @@ func (app *application) basicAuthMiddleware() func(http.Handler) http.Handler {
 			pass := app.config.auth.basic.password
 			creds := strings.SplitN(string(decoded), ":", 2)
 			if len(creds) != 2 || creds[0] != username || creds[1] != pass {
-				app.unauthorizedError(w, r, fmt.Errorf("Invalid credentials"))
+				app.unauthorizedError(w, r, fmt.Errorf("invalid credentials"))
 				return
 			}
 			next.ServeHTTP(w, r)
