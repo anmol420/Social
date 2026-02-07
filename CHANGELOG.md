@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/anmol420/social/compare/v1.0.0...v1.1.0) (2026-02-07)
+
+
+### Features
+
+* updated readme ([a18ebd7](https://github.com/anmol420/social/commit/a18ebd7ef41510e19834b075e4e0aee74e6814e2))
+
 ## 1.0.0 (2026-02-05)
 
 
